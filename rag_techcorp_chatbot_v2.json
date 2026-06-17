@@ -1,0 +1,191 @@
+{
+  "name": "RAG TechCorp - Chatbot (v2)",
+  "nodes": [
+    {
+      "parameters": {
+        "public": true,
+        "options": {
+          "title": "Asistente TechCorp",
+          "subtitle": "Pregúntame sobre la documentación interna de la empresa",
+          "initialMessages": "¡Hola! 👋 Soy el asistente virtual de TechCorp."
+        }
+      },
+      "id": "10000000-0000-0000-0000-000000000001",
+      "name": "Chat Trigger",
+      "type": "@n8n/n8n-nodes-langchain.chatTrigger",
+      "typeVersion": 1.1,
+      "position": [
+        240,
+        300
+      ],
+      "webhookId": "chat-techcorp-rag-v2"
+    },
+    {
+      "parameters": {
+        "options": {
+          "systemMessage": "# Rol\nEres el asistente virtual de TechCorp, especializado en responder preguntas sobre la documentación interna de la empresa.\n\n# Tareas\n- Responder consultas de los empleados sobre políticas, procedimientos y procesos internos.\n- Buscar SIEMPRE en la documentación interna usando la herramienta `buscar_documentacion` antes de responder.\n- Proporcionar respuestas precisas basadas en los documentos de la empresa.\n- Citar la fuente del documento cuando sea posible.\n\n# Restricciones\n- SOLO responder con información que esté en la documentación de la empresa.\n- Si la información no está en los documentos, responder: \"No dispongo de información sobre ese tema en la documentación de la empresa. Te recomiendo contactar con el departamento correspondiente.\"\n- NO inventar políticas, procedimientos ni datos que no estén en los documentos.\n- NO responder preguntas que no estén relacionadas con la empresa.\n\n# Formato\n- Respuestas claras y concisas.\n- Usar viñetas cuando sea apropiado.\n- Indicar el documento fuente cuando sea posible (por ejemplo: \"según las políticas de RRHH...\").\n"
+        }
+      },
+      "id": "20000000-0000-0000-0000-000000000002",
+      "name": "AI Agent",
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 1.7,
+      "position": [
+        520,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "value": "openai/gpt-4o-mini",
+          "mode": "list",
+          "cachedResultName": "openai/gpt-4o-mini"
+        },
+        "options": {}
+      },
+      "id": "30000000-0000-0000-0000-000000000003",
+      "name": "OpenRouter Chat Model",
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenRouter",
+      "typeVersion": 1,
+      "position": [
+        360,
+        520
+      ],
+      "credentials": {
+        "openRouterApi": {
+          "id": "",
+          "name": "OpenRouter"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "contextWindowLength": 10
+      },
+      "id": "40000000-0000-0000-0000-000000000004",
+      "name": "Window Buffer Memory",
+      "type": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
+      "typeVersion": 1.3,
+      "position": [
+        520,
+        520
+      ]
+    },
+    {
+      "parameters": {
+        "mode": "retrieve-as-tool",
+        "toolName": "buscar_documentacion",
+        "toolDescription": "Busca información en la documentación interna de la empresa TechCorp. Útil para responder preguntas sobre políticas de RRHH, procedimientos técnicos, soporte, vacaciones, teletrabajo, contraseñas, incidencias y cualquier otra consulta sobre la empresa.",
+        "pineconeIndex": {
+          "__rl": true,
+          "value": "empresa-docs",
+          "mode": "list",
+          "cachedResultName": "empresa-docs"
+        },
+        "topK": 4,
+        "includeDocumentMetadata": true,
+        "options": {}
+      },
+      "id": "50000000-0000-0000-0000-000000000005",
+      "name": "Pinecone (buscar_documentacion)",
+      "type": "@n8n/n8n-nodes-langchain.vectorStorePinecone",
+      "typeVersion": 1,
+      "position": [
+        720,
+        520
+      ],
+      "credentials": {
+        "pineconeApi": {
+          "id": "",
+          "name": "Pinecone"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "model": "text-embedding-3-small",
+        "options": {}
+      },
+      "id": "60000000-0000-0000-0000-000000000006",
+      "name": "Embeddings OpenAI",
+      "type": "@n8n/n8n-nodes-langchain.embeddingsOpenAi",
+      "typeVersion": 1.1,
+      "position": [
+        720,
+        740
+      ],
+      "credentials": {
+        "openAiApi": {
+          "id": "",
+          "name": "OpenAI-Embeddings"
+        }
+      }
+    }
+  ],
+  "connections": {
+    "Chat Trigger": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenRouter Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Window Buffer Memory": {
+      "ai_memory": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Pinecone (buscar_documentacion)": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Embeddings OpenAI": {
+      "ai_embedding": [
+        [
+          {
+            "node": "Pinecone (buscar_documentacion)",
+            "type": "ai_embedding",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "pinData": {},
+  "meta": {
+    "templateCredsSetupCompleted": false
+  }
+}

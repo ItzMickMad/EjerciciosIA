@@ -1,0 +1,184 @@
+{
+  "name": "RAG TechCorp - Ingesta",
+  "nodes": [
+    {
+      "parameters": {},
+      "id": "a1111111-1111-1111-1111-111111111111",
+      "name": "When clicking Test workflow",
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        240,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "language": "javaScript",
+        "jsCode": "return [\n  {\n    json: {\n      texto: `POLÍTICAS DE RECURSOS HUMANOS - TECHCORP\n\n1. HORARIO LABORAL\nEl horario estándar es de 9:00 a 18:00, de lunes a viernes, con una hora para la comida. Se permite flexibilidad horaria de entrada entre las 8:00 y las 10:00, ajustando la hora de salida proporcionalmente. El trabajo en remoto está permitido hasta 2 días por semana, previa aprobación del responsable directo.\n\n2. VACACIONES Y PERMISOS\nCada empleado dispone de 23 días laborables de vacaciones al año. Las vacaciones deben solicitarse con al menos 15 días de antelación a través del portal del empleado. No se pueden acumular más de 5 días de vacaciones de un año para otro. Los permisos por asuntos propios (máximo 3 días al año) deben comunicarse con 48 horas de antelación.\n\n3. TELETRABAJO\nLa política de teletrabajo permite hasta 2 días semanales de trabajo remoto. Es obligatorio estar disponible en horario laboral y utilizar la VPN corporativa. Las reuniones de equipo presenciales son obligatorias los martes y jueves. Para solicitar teletrabajo adicional, se requiere aprobación del director de área.\n\n4. FORMACIÓN\nLa empresa ofrece un presupuesto anual de 1.500 euros por empleado para formación profesional. Los cursos deben estar relacionados con el puesto de trabajo o con competencias estratégicas de la empresa. La solicitud se realiza a través del departamento de RRHH con al menos 30 días de antelación. Se requiere presentar un informe resumen tras completar la formación.\n\n5. EVALUACIÓN DEL DESEMPEÑO\nLas evaluaciones se realizan semestralmente (junio y diciembre). El proceso incluye autoevaluación, evaluación del responsable directo y reunión de feedback. Los objetivos se fijan al inicio de cada semestre. La evaluación impacta en las decisiones de promoción y revisión salarial anual.\n\n6. CÓDIGO DE VESTIMENTA\nLa empresa mantiene un código de vestimenta business casual. En reuniones con clientes externos se requiere vestimenta formal. Los viernes se permite vestimenta casual. No se permite el uso de chanclas, camisetas de tirantes o ropa deportiva en las instalaciones de la empresa.`,\n      fuente: \"politicas_rrhh\",\n      tipo: \"manual_rrhh\"\n    }\n  },\n  {\n    json: {\n      texto: `PROCEDIMIENTO DE SOPORTE TÉCNICO - TECHCORP\n\n1. CLASIFICACIÓN DE INCIDENCIAS\nLas incidencias se clasifican en tres niveles de prioridad:\n- CRÍTICA (P1): Sistemas caídos que afectan a toda la empresa. Tiempo de respuesta máximo: 30 minutos. Resolución objetivo: 4 horas.\n- ALTA (P2): Funcionalidad degradada que afecta a un departamento. Tiempo de respuesta máximo: 2 horas. Resolución objetivo: 8 horas.\n- NORMAL (P3): Incidencias menores o consultas. Tiempo de respuesta máximo: 24 horas. Resolución objetivo: 3 días laborables.\n\n2. PROCESO DE REPORTE\nPara reportar una incidencia:\na) Acceder al portal de soporte: soporte.techcorp.internal\nb) Seleccionar la categoría correspondiente (Hardware, Software, Red, Accesos)\nc) Describir el problema con el máximo detalle posible\nd) Adjuntar capturas de pantalla si es relevante\ne) Indicar la urgencia y el impacto en el trabajo\nEl sistema asignará automáticamente un número de ticket y un técnico responsable.\n\n3. ESCALADO DE INCIDENCIAS\nSi una incidencia no se resuelve en el tiempo establecido:\n- P3 sin resolver en 3 días -> Se escala a P2 automáticamente\n- P2 sin resolver en 8 horas -> Se notifica al responsable de IT\n- P1 sin resolver en 4 horas -> Se activa el protocolo de crisis con dirección\n\n4. MANTENIMIENTO PROGRAMADO\nLos mantenimientos se realizan los domingos de 2:00 a 6:00. Se notifica a todos los empleados con al menos 48 horas de antelación por email y en el portal. Durante el mantenimiento, los sistemas pueden no estar disponibles. En caso de emergencia, contactar con el teléfono de guardia: ext. 9999.\n\n5. POLÍTICA DE CONTRASEÑAS\nLas contraseñas deben cumplir los siguientes requisitos:\n- Mínimo 12 caracteres\n- Al menos una mayúscula, una minúscula, un número y un carácter especial\n- Cambio obligatorio cada 90 días\n- No se pueden reutilizar las últimas 5 contraseñas\n- Tras 5 intentos fallidos, la cuenta se bloquea automáticamente\nPara desbloquear la cuenta, contactar con soporte técnico presentando identificación válida.\n\n6. SOFTWARE AUTORIZADO\nSolo se puede instalar software aprobado por el departamento de IT. La lista de software autorizado está disponible en la intranet. Para solicitar la instalación de software adicional, abrir un ticket de categoría \\\"Software\\\" indicando el nombre del programa, la justificación y la URL de descarga oficial.`,\n      fuente: \"procedimiento_soporte\",\n      tipo: \"manual_tecnico\"\n    }\n  }\n];"
+      },
+      "id": "b2222222-2222-2222-2222-222222222222",
+      "name": "Documentos TechCorp",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        460,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "mode": "insert",
+        "pineconeIndex": {
+          "__rl": true,
+          "value": "empresa-docs",
+          "mode": "list",
+          "cachedResultName": "empresa-docs"
+        },
+        "options": {}
+      },
+      "id": "c3333333-3333-3333-3333-333333333333",
+      "name": "Pinecone Vector Store",
+      "type": "@n8n/n8n-nodes-langchain.vectorStorePinecone",
+      "typeVersion": 1,
+      "position": [
+        700,
+        300
+      ],
+      "credentials": {
+        "pineconeApi": {
+          "id": "",
+          "name": "Pinecone"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "model": "openai/text-embedding-3-small",
+        "options": {}
+      },
+      "id": "d4444444-4444-4444-4444-444444444444",
+      "name": "Embeddings OpenAI",
+      "type": "@n8n/n8n-nodes-langchain.embeddingsOpenAi",
+      "typeVersion": 1.1,
+      "position": [
+        600,
+        520
+      ],
+      "credentials": {
+        "openAiApi": {
+          "id": "",
+          "name": "OpenRouter-Embeddings"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "dataType": "json",
+        "jsonMode": "expressionData",
+        "jsonData": "={{ $json.texto }}",
+        "options": {
+          "metadata": {
+            "metadataValues": [
+              {
+                "name": "fuente",
+                "value": "={{ $json.fuente }}"
+              },
+              {
+                "name": "tipo",
+                "value": "={{ $json.tipo }}"
+              }
+            ]
+          }
+        }
+      },
+      "id": "e5555555-5555-5555-5555-555555555555",
+      "name": "Default Data Loader",
+      "type": "@n8n/n8n-nodes-langchain.documentDefaultDataLoader",
+      "typeVersion": 1,
+      "position": [
+        800,
+        520
+      ]
+    },
+    {
+      "parameters": {
+        "chunkSize": 300,
+        "chunkOverlap": 30
+      },
+      "id": "f6666666-6666-6666-6666-666666666666",
+      "name": "Recursive Character Text Splitter",
+      "type": "@n8n/n8n-nodes-langchain.textSplitterRecursiveCharacterTextSplitter",
+      "typeVersion": 1,
+      "position": [
+        800,
+        720
+      ]
+    }
+  ],
+  "connections": {
+    "When clicking Test workflow": {
+      "main": [
+        [
+          {
+            "node": "Documentos TechCorp",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Documentos TechCorp": {
+      "main": [
+        [
+          {
+            "node": "Pinecone Vector Store",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Embeddings OpenAI": {
+      "ai_embedding": [
+        [
+          {
+            "node": "Pinecone Vector Store",
+            "type": "ai_embedding",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Default Data Loader": {
+      "ai_document": [
+        [
+          {
+            "node": "Pinecone Vector Store",
+            "type": "ai_document",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Recursive Character Text Splitter": {
+      "ai_textSplitter": [
+        [
+          {
+            "node": "Default Data Loader",
+            "type": "ai_textSplitter",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "pinData": {},
+  "meta": {
+    "templateCredsSetupCompleted": false
+  }
+}
